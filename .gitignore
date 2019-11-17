@@ -10,3 +10,10 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# macOS/Linux binaries
+ok
+ok-cli
+
+# ide folders and files
+.idea
