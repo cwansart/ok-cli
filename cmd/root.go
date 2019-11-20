@@ -41,8 +41,7 @@ func init() {
 // Checks if environment variables for the external server, user name and password are set.
 func checkEnv() {
 	check := func(key string) {
-		_, ok := os.LookupEnv(key)
-		if !ok {
+		if _, ok := os.LookupEnv(key); !ok {
 			fmt.Printf("%s is not set but is required to work.", key)
 			os.Exit(1)
 		}
@@ -69,6 +68,6 @@ func cleanUrl(remoteKey string, remotePath string) string {
 		fmt.Printf("Invalid server type %s, only http is supported.", url.Scheme)
 	}
 
-	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
 	// alternatively use StringBuilder
+	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
 }
