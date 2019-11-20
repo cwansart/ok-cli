@@ -42,7 +42,7 @@ func init() {
 func checkEnv() {
 	check := func(key string) {
 		if _, ok := os.LookupEnv(key); !ok {
-			fmt.Printf("%s is not set but is required to work.", key)
+			fmt.Printf("%s is not set but is required to work.\n", key)
 			os.Exit(1)
 		}
 	}
@@ -59,15 +59,15 @@ func cleanUrl(remoteKey string, remotePath string) string {
 
 	// TODO: proper error handling
 	if err != nil {
-		fmt.Printf("An error occured: %s", err)
+		fmt.Printf("An error occured: %s\n", err)
 		os.Exit(1)
 	}
 
 	// TODO: add https support and disable http
 	if url.Scheme != "http" {
-		fmt.Printf("Invalid server type %s, only http is supported.", url.Scheme)
+		fmt.Printf("Invalid server type %s\n, only http is supported.", url.Scheme)
 	}
 
 	// alternatively use StringBuilder
-	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
+	return fmt.Sprintf("%s://%s:%s%s\n", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
 }

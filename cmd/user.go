@@ -15,12 +15,12 @@ var userCmd = &cobra.Command{
 
 func init() {
 	if _, ok := os.LookupEnv(userNameKey); !ok {
-		fmt.Println(userNameKey + " is not set but is required to work.")
+		fmt.Printf("%s is not set but is required to work.\n", userNameKey)
 		os.Exit(1)
 	}
 
 	if _, ok := os.LookupEnv(passwordKey); !ok {
-		fmt.Println(passwordKey + " is not set but is required to work.")
+		fmt.Printf("%s is not set but is required to work.\n", passwordKey)
 		os.Exit(1)
 	}
 }

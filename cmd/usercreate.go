@@ -50,13 +50,13 @@ func userCreate(cmd *cobra.Command, _ []string) {
 
 	b, err := json.Marshal(u)
 	if err != nil {
-		fmt.Printf("An error occurred during marshalling:  %s", err)
+		fmt.Printf("An error occurred during marshalling:  %s\n", err)
 		os.Exit(1)
 	}
 
 	req, err := http.NewRequest("POST", userCreateUrl(), bytes.NewBuffer(b))
 	if err != nil {
-		fmt.Printf("An error occurred during  request creation: %s", err)
+		fmt.Printf("An error occurred during  request creation: %s\n", err)
 		return
 	}
 
@@ -66,7 +66,7 @@ func userCreate(cmd *cobra.Command, _ []string) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("An error occurred during request: %s", err)
+		fmt.Printf("An error occurred during request: %s\n", err)
 		return
 	}
 
@@ -74,12 +74,12 @@ func userCreate(cmd *cobra.Command, _ []string) {
 
 	switch resp.StatusCode {
 	case 201:
-		fmt.Printf("User has been created. %s", string(respBody))
+		fmt.Printf("User has been created. %s\n", string(respBody))
 	case 403:
-		fmt.Printf("Request failed (403). You are not authorized for this action. %s", string(respBody))
+		fmt.Printf("Request failed (403). You are not authorized for this action. %s\n", string(respBody))
 	case 422:
 		// api validation error; this should not happen except there are changes in the api
-		fmt.Printf("Request failed (422). The Gitea api may have changed. %s", string(respBody))
+		fmt.Printf("Request failed (422). The Gitea api may have changed. %s\n", string(respBody))
 	}
 }
 

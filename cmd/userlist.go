@@ -20,7 +20,7 @@ func userList(_ *cobra.Command, _ []string) {
 	// TODO: check args if there is a user name and access that instead. Do we need another sub command for that?
 	req, err := http.NewRequest("GET", userListUrl(), nil)
 	if err != nil {
-		fmt.Printf("An error occurred during request creation: %s", err) // TODO: use logger or an error output instead?
+		fmt.Printf("An error occurred during request creation: %s\n", err) // TODO: use logger or an error output instead?
 		return
 	}
 
@@ -29,14 +29,14 @@ func userList(_ *cobra.Command, _ []string) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("An error occurred during request: %s", err)
+		fmt.Printf("An error occurred during request: %s\n", err)
 		return
 	}
 
 	respBody, _ := ioutil.ReadAll(resp.Body) // TODO: error handling
 
 	// TODO: pretify JSON output or should we just output the names?
-	fmt.Printf("Got response: %s", string(respBody))
+	fmt.Printf("Got response: %s\n", string(respBody))
 }
 
 func userListUrl() string {
