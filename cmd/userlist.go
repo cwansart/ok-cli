@@ -19,9 +19,8 @@ var userListCmd = &cobra.Command{
 func userList(_ *cobra.Command, _ []string) {
 	// TODO: check args if there is a user name and access that instead. Do we need another sub command for that?
 	req, err := http.NewRequest("GET", userListUrl(), nil)
-
 	if err != nil {
-		fmt.Println("An error occurred during request creation: ", err) // TODO: use logger or an error output instead?
+		fmt.Printf("An error occurred during request creation: %s", err) // TODO: use logger or an error output instead?
 		return
 	}
 
@@ -29,9 +28,8 @@ func userList(_ *cobra.Command, _ []string) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-
 	if err != nil {
-		fmt.Println("An error occurred during request: ", err)
+		fmt.Printf("An error occurred during request: %s", err)
 		return
 	}
 
