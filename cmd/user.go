@@ -19,7 +19,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	if _, ok = os.LookupEnv(passwordKey); !ok {
+	if _, ok := os.LookupEnv(passwordKey); !ok {
 		fmt.Println(passwordKey + " is not set but is required to work.")
 		os.Exit(1)
 	}
