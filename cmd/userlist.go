@@ -36,7 +36,7 @@ func userList(_ *cobra.Command, _ []string) {
 	respBody, _ := ioutil.ReadAll(resp.Body) // TODO: error handling
 
 	// TODO: pretify JSON output or should we just output the names?
-	fmt.Println("Got response: ", string(respBody))
+	fmt.Printf("Got response: %s", string(respBody))
 }
 
 func userListUrl() string {
