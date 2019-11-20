@@ -24,9 +24,11 @@ func userList(_ *cobra.Command, _ []string) {
 		return
 	}
 
+	// TODO: handle missing env var
 	req.SetBasicAuth(os.Getenv(userNameKey), os.Getenv(passwordKey))
 
 	client := &http.Client{}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("An error occurred during request: %s\n", err)
