@@ -55,8 +55,8 @@ func checkEnv() {
 // Creates a clean url without any trailing slashes or special characters.
 func cleanUrl(remoteKey string, remotePath string) string {
 	// TODO: differentiate between Gitea and Jenkins backend
-	rawurl := os.Getenv(remoteKey) + remotePath
-	url, err := neturl.Parse(rawurl)
+	rawURL := os.Getenv(remoteKey) + remotePath
+	url, err := neturl.Parse(rawURL)
 
 	// TODO: proper error handling
 	if err != nil {
