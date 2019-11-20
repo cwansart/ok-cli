@@ -48,6 +48,7 @@ func userCreate(cmd *cobra.Command, _ []string) {
 		Password:           password,
 	}
 
+	// TODO: change to decoder?
 	b, err := json.Marshal(u)
 	if err != nil {
 		fmt.Printf("An error occurred during marshalling:  %s\n", err)
