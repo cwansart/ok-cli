@@ -12,7 +12,7 @@ import (
 )
 
 var userCreateCmd = &cobra.Command{
-	Use:   "create --email <email> --loginName <lognName> --password <password>",
+	Use:   "create --email <email> --loginName <loginName> --password <password>",
 	Short: "", // TODO: add Short and Long
 	Long:  "",
 	Run:   userCreate,
@@ -35,9 +35,9 @@ func init() {
 	userCreateCmd.Flags().StringVarP(&email, "email", "e", "", "User's email address")
 	userCreateCmd.Flags().StringVarP(&loginName, "loginName", "l", "", "User's login name")
 	userCreateCmd.Flags().StringVarP(&password, "password", "p", "", "User's password")
-	userCreateCmd.MarkFlagRequired("email")
-	userCreateCmd.MarkFlagRequired("loginName")
-	userCreateCmd.MarkFlagRequired("password")
+	_ = userCreateCmd.MarkFlagRequired("email")
+	_ = userCreateCmd.MarkFlagRequired("loginName")
+	_ = userCreateCmd.MarkFlagRequired("password")
 }
 
 func userCreate(cmd *cobra.Command, _ []string) {
@@ -49,14 +49,12 @@ func userCreate(cmd *cobra.Command, _ []string) {
 	}
 
 	b, err := json.Marshal(u)
-
 	if err != nil {
-		fmt.Println("An error occured during mashalling: ", err)
+		fmt.Println("An error occurred during marshalling: ", err)
 		os.Exit(1)
 	}
 
 	req, err := http.NewRequest("POST", userCreateUrl(), bytes.NewBuffer(b))
-
 	if err != nil {
 		fmt.Println("An error occurred during  request creation: ", err)
 		return
@@ -67,7 +65,6 @@ func userCreate(cmd *cobra.Command, _ []string) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-
 	if err != nil {
 		fmt.Println("An error occurred during request: ", err)
 		return
