@@ -19,26 +19,26 @@ var userListCmd = &cobra.Command{
 func userList(_ *cobra.Command, _ []string) {
 	// TODO: check args if there is a user name and access that instead. Do we need another sub command for that?
 	req, err := http.NewRequest("GET", userListUrl(), nil)
-
 	if err != nil {
-		fmt.Println("An error occurred during request creation: ", err) // TODO: use logger or an error output instead?
+		fmt.Printf("An error occurred during request creation: %s\n", err) // TODO: use logger or an error output instead?
 		return
 	}
 
+	// TODO: handle missing env var
 	req.SetBasicAuth(os.Getenv(userNameKey), os.Getenv(passwordKey))
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
 
+	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("An error occurred during request: ", err)
+		fmt.Printf("An error occurred during request: %s\n", err)
 		return
 	}
 
 	respBody, _ := ioutil.ReadAll(resp.Body) // TODO: error handling
 
 	// TODO: pretify JSON output or should we just output the names?
-	fmt.Println("Got response: ", string(respBody))
+	fmt.Printf("Got response: %s\n", string(respBody))
 }
 
 func userListUrl() string {

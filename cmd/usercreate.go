@@ -12,7 +12,7 @@ import (
 )
 
 var userCreateCmd = &cobra.Command{
-	Use:   "create --email <email> --loginName <lognName> --password <password>",
+	Use:   "create --email <email> --loginName <loginName> --password <password>",
 	Short: "", // TODO: add Short and Long
 	Long:  "",
 	Run:   userCreate,
@@ -35,9 +35,9 @@ func init() {
 	userCreateCmd.Flags().StringVarP(&email, "email", "e", "", "User's email address")
 	userCreateCmd.Flags().StringVarP(&loginName, "loginName", "l", "", "User's login name")
 	userCreateCmd.Flags().StringVarP(&password, "password", "p", "", "User's password")
-	userCreateCmd.MarkFlagRequired("email")
-	userCreateCmd.MarkFlagRequired("loginName")
-	userCreateCmd.MarkFlagRequired("password")
+	_ = userCreateCmd.MarkFlagRequired("email")
+	_ = userCreateCmd.MarkFlagRequired("loginName")
+	_ = userCreateCmd.MarkFlagRequired("password")
 }
 
 func userCreate(cmd *cobra.Command, _ []string) {
@@ -48,17 +48,16 @@ func userCreate(cmd *cobra.Command, _ []string) {
 		Password:           password,
 	}
 
+	// TODO: change to decoder?
 	b, err := json.Marshal(u)
-
 	if err != nil {
-		fmt.Println("An error occured during mashalling: ", err)
+		fmt.Printf("An error occurred during marshalling:  %s\n", err)
 		os.Exit(1)
 	}
 
 	req, err := http.NewRequest("POST", userCreateUrl(), bytes.NewBuffer(b))
-
 	if err != nil {
-		fmt.Println("An error occurred during  request creation: ", err)
+		fmt.Printf("An error occurred during  request creation: %s\n", err)
 		return
 	}
 
@@ -67,9 +66,8 @@ func userCreate(cmd *cobra.Command, _ []string) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-
 	if err != nil {
-		fmt.Println("An error occurred during request: ", err)
+		fmt.Printf("An error occurred during request: %s\n", err)
 		return
 	}
 
@@ -77,12 +75,12 @@ func userCreate(cmd *cobra.Command, _ []string) {
 
 	switch resp.StatusCode {
 	case 201:
-		fmt.Println("User has been created. ", string(respBody))
+		fmt.Printf("User has been created. %s\n", string(respBody))
 	case 403:
-		fmt.Println("Request failed (403). You are not authorized for this action.", string(respBody))
+		fmt.Printf("Request failed (403). You are not authorized for this action. %s\n", string(respBody))
 	case 422:
 		// api validation error; this should not happen except there are changes in the api
-		fmt.Println("Request failed (422). The Gitea api may have changed.", string(respBody))
+		fmt.Printf("Request failed (422). The Gitea api may have changed. %s\n", string(respBody))
 	}
 }
 
