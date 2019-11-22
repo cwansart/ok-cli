@@ -11,7 +11,7 @@ import (
 
 // Is there a better way to do that in Go?
 const (
-	userNameKey   = "OK_USER_NAME"
+	usernameKey   = "OK_USERNAME"
 	passwordKey   = "OK_PASSWORD"
 	jenkinsUrlKey = "OK_JENKINS_URL"
 	giteaUrlKey   = "OK_GITEA_URL"
