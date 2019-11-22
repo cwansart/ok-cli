@@ -12,14 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Is there a better way to do that in Go?
-const (
-	usernameKey   = "OK_USERNAME"
-	passwordKey   = "OK_PASSWORD"
-	jenkinsUrlKey = "OK_JENKINS_URL"
-	giteaUrlKey   = "OK_GITEA_URL"
-)
-
 var config okconfig.Config
 
 var rootCmd = &cobra.Command{
@@ -48,23 +40,10 @@ func init() {
 	config = okconfig.NewConfig()
 }
 
-// Checks if environment variables for the external server, user name and password are set.
-func checkEnv() {
-	check := func(key string) {
-		if _, ok := os.LookupEnv(key); !ok {
-			fmt.Printf("%s is not set but is required to work.\n", key)
-			os.Exit(1)
-		}
-	}
-
-	check(jenkinsUrlKey)
-	check(giteaUrlKey)
-}
-
 // Creates a clean url without any trailing slashes or special characters.
-func cleanUrl(remotePath string) string {
+func cleanUrl(remoteKey string, remotePath string) string {
 	// TODO: differentiate between Gitea and Jenkins backend
-	rawURL := config.GiteaURL + remotePath
+	rawURL := fmt.Sprintf("%s%s", remoteKey, remotePath)
 
 	url, err := neturl.Parse(rawURL)
 	if err != nil {
@@ -76,6 +55,5 @@ func cleanUrl(remotePath string) string {
 		fmt.Printf("Invalid server type %s\n, only http is supported.", url.Scheme)
 	}
 
-	// alternatively use StringBuilder
 	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
 }
