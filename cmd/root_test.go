@@ -8,9 +8,9 @@ import (
 
 func TestCleanURL(t *testing.T) {
 	var testData = []struct {
-		config        okconfig.Config
-		path          string
-		correctResult string
+		config okconfig.Config
+		path   string
+		want   string
 	}{
 		{
 			createTestConfig("", "", "http://localhost", ""),
@@ -20,9 +20,9 @@ func TestCleanURL(t *testing.T) {
 		// add more tests here
 	}
 
-	for _, tt := range testData {
-		got := cleanUrl(tt.config.GiteaURL, tt.path)
-		assert.Equal(t, got, tt.correctResult)
+	for _, td := range testData {
+		got := cleanUrl(td.config.GiteaURL, td.path)
+		assert.Equal(t, got, td.want)
 	}
 }
 
