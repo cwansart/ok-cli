@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	// config collides with struct in package cmd
+	// 'config' collides with name declared in this package
 	okconfig "github.com/cwansart/ok-cli/internal/config"
 
 	"github.com/spf13/cobra"
@@ -55,5 +55,8 @@ func cleanUrl(remoteKey string, remotePath string) string {
 		fmt.Printf("Invalid server type %s\n, only http is supported.", url.Scheme)
 	}
 
+	if len(url.Port()) == 0 {
+		return fmt.Sprintf("%s://%s%s", url.Scheme, url.Hostname(), path.Clean(url.EscapedPath()))
+	}
 	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
 }
