@@ -13,8 +13,8 @@ import (
 
 var userCreateCmd = &cobra.Command{
 	Use:   "create --email <email> --loginName <loginName> --password <password>",
-	Short: "", // TODO: add Short and Long
-	Long:  "",
+	Short: "Create new user",
+	Long:  "Create new user",
 	Run:   userCreate,
 }
 
