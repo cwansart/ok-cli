@@ -6,6 +6,9 @@ import (
 	"os"
 	"path"
 
+	// config collides with struct in package cmd
+	okconfig "github.com/cwansart/ok-cli/internal/config"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +19,8 @@ const (
 	jenkinsUrlKey = "OK_JENKINS_URL"
 	giteaUrlKey   = "OK_GITEA_URL"
 )
+
+var config okconfig.Config
 
 var rootCmd = &cobra.Command{
 	Use:   "ok <command> <action> [parameters]",
@@ -40,7 +45,7 @@ func init() {
 	userCmd.AddCommand(userCreateCmd)
 	userCmd.AddCommand(userListCmd)
 
-	checkEnv()
+	config = okconfig.NewConfig()
 }
 
 // Checks if environment variables for the external server, user name and password are set.
@@ -57,15 +62,13 @@ func checkEnv() {
 }
 
 // Creates a clean url without any trailing slashes or special characters.
-func cleanUrl(remoteKey string, remotePath string) string {
+func cleanUrl(remotePath string) string {
 	// TODO: differentiate between Gitea and Jenkins backend
-	rawURL := os.Getenv(remoteKey) + remotePath
-	url, err := neturl.Parse(rawURL)
+	rawURL := config.GiteaURL + remotePath
 
-	// TODO: proper error handling
+	url, err := neturl.Parse(rawURL)
 	if err != nil {
-		fmt.Printf("An error occured: %s\n", err)
-		os.Exit(1)
+		fmt.Errorf("Could not parse URL: %s\n", err)
 	}
 
 	// TODO: add https support and disable http
