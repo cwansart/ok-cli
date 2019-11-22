@@ -97,6 +97,7 @@ func createOnGitea(s chan bool) {
 		// api validation error; this should not happen except there are changes in the api
 		fmt.Printf("Request failed (422). The Gitea api may have changed. %s\n", string(respBody))
 	default:
+		s <- false
 		fmt.Printf("Request failed (%d). %s\n", resp.StatusCode, string(respBody))
 	}
 }

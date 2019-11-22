@@ -20,7 +20,12 @@ const (
 var rootCmd = &cobra.Command{
 	Use:   "ok <command> <action> [parameters]",
 	Short: "ok is a management tool for projects",
-	Long:  "ok manages users and projects in the infrastructure set-up via env variables.",
+	Long: "\nok manages users and projects in the infrastructure set-up via env variables. " +
+		"Required environment variables" +
+		"\n\tOK_JENKINS_URL\t- URL for the Jenkins instance" +
+		"\n\tOK_GITEA_URL\t- URL for the Gitea Instance" +
+		"\n\tOK_USER_NAME\t- Gitea's admin username" +
+		"\n\tOK_PASSWORD\t- Gitea's admin password",
 }
 
 func Execute() {

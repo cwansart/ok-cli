@@ -9,7 +9,7 @@ import (
 
 var userCmd = &cobra.Command{
 	Use:   "user <action> [parameters]",
-	Short: "Short",
+	Short: "Manage users",
 	Long:  "Long",
 }
 
