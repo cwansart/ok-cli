@@ -69,5 +69,5 @@ func cleanUrl(remoteKey string, remotePath string) string {
 	}
 
 	// alternatively use StringBuilder
-	return fmt.Sprintf("%s://%s:%s%s\n", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
+	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
 }
