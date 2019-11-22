@@ -25,7 +25,7 @@ func userList(_ *cobra.Command, _ []string) {
 	}
 
 	// TODO: handle missing env var
-	req.SetBasicAuth(os.Getenv(userNameKey), os.Getenv(passwordKey))
+	req.SetBasicAuth(os.Getenv(usernameKey), os.Getenv(passwordKey))
 
 	client := &http.Client{}
 
