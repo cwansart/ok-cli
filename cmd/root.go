@@ -5,6 +5,7 @@ import (
 	neturl "net/url"
 	"os"
 	"path"
+	"strings"
 
 	// 'config' collides with name declared in this package
 	okconfig "github.com/cwansart/ok-cli/internal/config"
@@ -55,8 +56,17 @@ func cleanUrl(remoteKey string, remotePath string) string {
 		fmt.Printf("Invalid server type %s\n, only http is supported.", url.Scheme)
 	}
 
-	if len(url.Port()) == 0 {
-		return fmt.Sprintf("%s://%s%s", url.Scheme, url.Hostname(), path.Clean(url.EscapedPath()))
+	// is correct, but doesnt look good
+	var urlBuilder strings.Builder
+
+	urlBuilder.WriteString(url.Scheme)
+	urlBuilder.WriteString("://")
+	urlBuilder.WriteString(url.Hostname())
+	if len(url.Port()) != 0 {
+		urlBuilder.WriteString(":")
+		urlBuilder.WriteString(url.Port())
 	}
-	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
+	urlBuilder.WriteString(path.Clean(url.EscapedPath()))
+
+	return urlBuilder.String()
 }
