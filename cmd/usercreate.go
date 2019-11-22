@@ -12,31 +12,31 @@ import (
 )
 
 var userCreateCmd = &cobra.Command{
-	Use:   "create --email <email> --loginName <loginName> --password <password>",
+	Use:   "create --email <email> --username <username> --password <password>",
 	Short: "", // TODO: add Short and Long
 	Long:  "",
 	Run:   userCreate,
 }
 
 var (
-	email     string
-	loginName string
-	password  string
+	email    string
+	username string
+	password string
 )
 
 type createUserOption struct {
 	Email              string `json:"email"`
-	LoginName          string `json:"login_name"`
+	Username           string `json:"username"`
 	MustChangePassword bool   `json:"must_change_password"`
 	Password           string `json:"password"`
 }
 
 func init() {
 	userCreateCmd.Flags().StringVarP(&email, "email", "e", "", "User's email address")
-	userCreateCmd.Flags().StringVarP(&loginName, "loginName", "l", "", "User's login name")
+	userCreateCmd.Flags().StringVarP(&username, "username", "u", "", "User's login name")
 	userCreateCmd.Flags().StringVarP(&password, "password", "p", "", "User's password")
 	_ = userCreateCmd.MarkFlagRequired("email")
-	_ = userCreateCmd.MarkFlagRequired("loginName")
+	_ = userCreateCmd.MarkFlagRequired("username")
 	_ = userCreateCmd.MarkFlagRequired("password")
 }
 
@@ -55,7 +55,7 @@ func userCreate(_ *cobra.Command, _ []string) {
 func createOnGitea(s chan bool) {
 	u := createUserOption{
 		Email:              email,
-		LoginName:          loginName,
+		Username:           username,
 		MustChangePassword: false,
 		Password:           password,
 	}
@@ -69,12 +69,13 @@ func createOnGitea(s chan bool) {
 
 	req, err := http.NewRequest("POST", giteaUserCreateUrl(), bytes.NewBuffer(b))
 	if err != nil {
-		fmt.Printf("An error occurred during  request creation: %s\n", err)
+		fmt.Printf("An error occurred during request creation: %s\n", err)
 		return
 	}
 
 	// TODO: perhaps using a token would be better? See /admin​/users​/{username}​/keys route
-	req.SetBasicAuth(os.Getenv(userNameKey), os.Getenv(passwordKey))
+	req.SetBasicAuth(os.Getenv(usernameKey), os.Getenv(passwordKey))
+	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -95,7 +96,8 @@ func createOnGitea(s chan bool) {
 	case 422:
 		// api validation error; this should not happen except there are changes in the api
 		fmt.Printf("Request failed (422). The Gitea api may have changed. %s\n", string(respBody))
-		s <- false
+	default:
+		fmt.Printf("Request failed (%d). %s\n", resp.StatusCode, string(respBody))
 	}
 }
 
