@@ -40,7 +40,19 @@ func init() {
 	_ = userCreateCmd.MarkFlagRequired("password")
 }
 
-func userCreate(cmd *cobra.Command, _ []string) {
+func userCreate(_ *cobra.Command, _ []string) {
+	s := make(chan bool, 2)
+	go createOnGitea(s)
+	go createOnJenkins(s)
+
+	g, j := <-s
+	// @Max: does this work?
+	if !g || !j {
+		// TODO: undo changes if one fails
+	}
+}
+
+func createOnGitea(s chan bool) {
 	u := createUserOption{
 		Email:              email,
 		LoginName:          loginName,
@@ -55,7 +67,7 @@ func userCreate(cmd *cobra.Command, _ []string) {
 		os.Exit(1)
 	}
 
-	req, err := http.NewRequest("POST", userCreateUrl(), bytes.NewBuffer(b))
+	req, err := http.NewRequest("POST", giteaUserCreateUrl(), bytes.NewBuffer(b))
 	if err != nil {
 		fmt.Printf("An error occurred during  request creation: %s\n", err)
 		return
@@ -76,14 +88,22 @@ func userCreate(cmd *cobra.Command, _ []string) {
 	switch resp.StatusCode {
 	case 201:
 		fmt.Printf("User has been created. %s\n", string(respBody))
+		s <- true
 	case 403:
 		fmt.Printf("Request failed (403). You are not authorized for this action. %s\n", string(respBody))
+		s <- false
 	case 422:
 		// api validation error; this should not happen except there are changes in the api
 		fmt.Printf("Request failed (422). The Gitea api may have changed. %s\n", string(respBody))
+		s <- false
 	}
 }
 
-func userCreateUrl() string {
+func createOnJenkins(s chan bool) {
+	// TODO: to be implemented
+	s <- true
+}
+
+func giteaUserCreateUrl() string {
 	return cleanUrl(giteaUrlKey, "/api/v1/admin/users")
 }
