@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
-	"os"
-
-	"github.com/spf13/cobra"
 )
 
 var userCreateCmd = &cobra.Command{
@@ -72,7 +70,7 @@ func createOnGitea(s chan bool) {
 	}
 
 	// TODO: perhaps using a token would be better? See /admin​/users​/{username}​/keys route
-	req.SetBasicAuth(os.Getenv(usernameKey), os.Getenv(passwordKey))
+	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -106,5 +104,5 @@ func createOnJenkins(s chan bool) {
 }
 
 func giteaUserCreateUrl() string {
-	return cleanUrl("/api/v1/admin/users")
+	return cleanUrl(config.GiteaURL, "/api/v1/admin/users")
 }
