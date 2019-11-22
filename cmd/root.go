@@ -24,7 +24,7 @@ var rootCmd = &cobra.Command{
 		"Required environment variables" +
 		"\n\tOK_JENKINS_URL\t- URL for the Jenkins instance" +
 		"\n\tOK_GITEA_URL\t- URL for the Gitea Instance" +
-		"\n\tOK_USER_NAME\t- Gitea's admin username" +
+		"\n\tOK_USERNAME\t- Gitea's admin username" +
 		"\n\tOK_PASSWORD\t- Gitea's admin password",
 }
 
