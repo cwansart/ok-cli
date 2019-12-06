@@ -10,17 +10,22 @@ import (
 var userCmd = &cobra.Command{
 	Use:   "user <action> [parameters]",
 	Short: "Manage users",
-	Long:  "Long",
+	Long:  "Long", // TODO: add description
 }
 
 func init() {
-	if _, ok := os.LookupEnv(usernameKey); !ok {
-		fmt.Printf("%s is not set but is required to work.\n", usernameKey)
-		os.Exit(1)
-	}
+	lookupKey(giteaUsernameKey)
+	lookupKey(giteaPasswordKey)
+	lookupKey(giteaUrlKey)
+	lookupKey(jenkinsUrlKey)
+	lookupKey(jenkinsUsernameKey)
+	lookupKey(jenkinsPasswordKey)
+	lookupKey(jenkinsCliPathKey)
+}
 
-	if _, ok := os.LookupEnv(passwordKey); !ok {
-		fmt.Printf("%s is not set but is required to work.\n", passwordKey)
+func lookupKey(k string) {
+	if _, ok := os.LookupEnv(k); !ok {
+		fmt.Printf("%s is not set but is required to work.\n", k)
 		os.Exit(1)
 	}
 }

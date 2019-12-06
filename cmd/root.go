@@ -11,10 +11,13 @@ import (
 
 // Is there a better way to do that in Go?
 const (
-	usernameKey   = "OK_USERNAME"
-	passwordKey   = "OK_PASSWORD"
-	jenkinsUrlKey = "OK_JENKINS_URL"
-	giteaUrlKey   = "OK_GITEA_URL"
+	giteaUsernameKey   = "OK_GITEA_USERNAME"
+	giteaPasswordKey   = "OK_GITEA_PASSWORD"
+	giteaUrlKey        = "OK_GITEA_URL"
+	jenkinsUsernameKey = "OK_JENKINS_USERNAME"
+	jenkinsPasswordKey = "OK_JENKINS_PASSWORD"
+	jenkinsUrlKey      = "OK_JENKINS_URL"
+	jenkinsCliPathKey  = "OK_JENKINS_CLI_PATH"
 )
 
 var rootCmd = &cobra.Command{

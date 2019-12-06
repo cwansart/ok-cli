@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +25,7 @@ var (
 	password string
 )
 
-type createUserOption struct {
+type createGiteaUserOption struct {
 	Email              string `json:"email"`
 	Username           string `json:"username"`
 	MustChangePassword bool   `json:"must_change_password"`
@@ -53,7 +54,7 @@ func userCreate(_ *cobra.Command, _ []string) {
 }
 
 func createOnGitea(s chan bool) {
-	u := createUserOption{
+	u := createGiteaUserOption{
 		Email:              email,
 		Username:           username,
 		MustChangePassword: false,
@@ -74,7 +75,7 @@ func createOnGitea(s chan bool) {
 	}
 
 	// TODO: perhaps using a token would be better? See /admin​/users​/{username}​/keys route
-	req.SetBasicAuth(os.Getenv(usernameKey), os.Getenv(passwordKey))
+	req.SetBasicAuth(os.Getenv(giteaUsernameKey), os.Getenv(giteaPasswordKey))
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -102,8 +103,52 @@ func createOnGitea(s chan bool) {
 	}
 }
 
+// To create a new Jenkins we account we need to invoke the jenkins-cli with some parameters. The command looks like:
+// echo 'jenkins.model.Jenkins.instance.securityRealm.createAccount("user", "password")' | java -jar $OK_JENKINS_CLI_PATH -s $OK_JENKINS_URL -auth $OK_JENKINS_USERNAME:$OK_JENKINS_PASSWORD groovy =
 func createOnJenkins(s chan bool) {
-	// TODO: to be implemented
+	echo := exec.Command("echo",
+		fmt.Sprintf(`'jenkins.model.Jenkins.instance.securityRealm.createAccount("%s", "%s")'`,
+			username,
+			password))
+
+	cli := exec.Command("java",
+		"-jar", os.Getenv(jenkinsCliPathKey),
+		"-s", os.Getenv(jenkinsUrlKey),
+		"-auth", fmt.Sprintf("$%s:$%s", jenkinsUsernameKey, jenkinsPasswordKey),
+		//"-auth", fmt.Sprintf("%s:%s", os.Getenv(jenkinsUsernameKey), os.Getenv(jenkinsPasswordKey)),
+		"help")
+
+	fmt.Printf("Run command: %s | %s", echo.String(), cli.String())
+
+	pipe, err := echo.StdoutPipe()
+	defer pipe.Close() // TODO: IntelliJ warns about unhandled exception. How do we handle this?
+
+	if err != nil {
+		fmt.Printf("Run jenkins-cli failed. %s\n", err)
+		s <- false
+		return
+	}
+
+	// pipe in the "cli" command into the echo
+	cli.Stdin = pipe
+
+	err = echo.Start()
+	if err != nil {
+		fmt.Printf("Run echo failed. %s\n", err)
+		s <- false
+		return
+	}
+
+	o, _ := cli.Output()
+
+	if err != nil {
+		fmt.Printf("Grabbing output failed. %s\n", err)
+		s <- false
+		return
+	}
+
+	fmt.Printf("Jenkins-cli output: %s", string(o))
+
 	s <- true
 }
 
