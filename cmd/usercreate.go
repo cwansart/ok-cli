@@ -47,7 +47,6 @@ func userCreate(_ *cobra.Command, _ []string) {
 	go createOnJenkins(s)
 
 	g, j := <-s
-	// @Max: does this work?
 	if !g || !j {
 		// TODO: undo changes if one fails
 	}
@@ -61,11 +60,10 @@ func createOnGitea(s chan bool) {
 		Password:           password,
 	}
 
-	// TODO: change to decoder?
 	b, err := json.Marshal(u)
 	if err != nil {
-		fmt.Printf("An error occurred during marshalling:  %s\n", err)
-		os.Exit(1)
+		fmt.Errorf("An error occurred during marshalling:  %s\n", err)
+		return
 	}
 
 	req, err := http.NewRequest("POST", giteaUserCreateUrl(), bytes.NewBuffer(b))
@@ -75,13 +73,13 @@ func createOnGitea(s chan bool) {
 	}
 
 	// TODO: perhaps using a token would be better? See /admin​/users​/{username}​/keys route
-	req.SetBasicAuth(os.Getenv(giteaUsernameKey), os.Getenv(giteaPasswordKey))
+	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("An error occurred during request: %s\n", err)
+		fmt.Errorf("An error occurred during request: %s\n", err)
 		return
 	}
 
@@ -153,5 +151,5 @@ func createOnJenkins(s chan bool) {
 }
 
 func giteaUserCreateUrl() string {
-	return cleanUrl(giteaUrlKey, "/api/v1/admin/users")
+	return cleanUrl(config.GiteaURL, "/api/v1/admin/users")
 }

@@ -5,6 +5,10 @@ import (
 	neturl "net/url"
 	"os"
 	"path"
+	"strings"
+
+	// 'config' collides with name declared in this package
+	okconfig "github.com/cwansart/ok-cli/internal/config"
 
 	"github.com/spf13/cobra"
 )
@@ -19,6 +23,8 @@ const (
 	jenkinsUrlKey      = "OK_JENKINS_URL"
 	jenkinsCliPathKey  = "OK_JENKINS_CLI_PATH"
 )
+
+var config okconfig.Config
 
 var rootCmd = &cobra.Command{
 	Use:   "ok <command> <action> [parameters]",
@@ -43,32 +49,17 @@ func init() {
 	userCmd.AddCommand(userCreateCmd)
 	userCmd.AddCommand(userListCmd)
 
-	checkEnv()
-}
-
-// Checks if environment variables for the external server, user name and password are set.
-func checkEnv() {
-	check := func(key string) {
-		if _, ok := os.LookupEnv(key); !ok {
-			fmt.Printf("%s is not set but is required to work.\n", key)
-			os.Exit(1)
-		}
-	}
-
-	check(jenkinsUrlKey)
-	check(giteaUrlKey)
+	config = okconfig.NewConfig()
 }
 
 // Creates a clean url without any trailing slashes or special characters.
 func cleanUrl(remoteKey string, remotePath string) string {
 	// TODO: differentiate between Gitea and Jenkins backend
-	rawURL := os.Getenv(remoteKey) + remotePath
-	url, err := neturl.Parse(rawURL)
+	rawURL := fmt.Sprintf("%s%s", remoteKey, remotePath)
 
-	// TODO: proper error handling
+	url, err := neturl.Parse(rawURL)
 	if err != nil {
-		fmt.Printf("An error occured: %s\n", err)
-		os.Exit(1)
+		fmt.Errorf("Could not parse URL: %s\n", err)
 	}
 
 	// TODO: add https support and disable http
@@ -76,6 +67,17 @@ func cleanUrl(remoteKey string, remotePath string) string {
 		fmt.Printf("Invalid server type %s\n, only http is supported.", url.Scheme)
 	}
 
-	// alternatively use StringBuilder
-	return fmt.Sprintf("%s://%s:%s%s", url.Scheme, url.Hostname(), url.Port(), path.Clean(url.EscapedPath()))
+	// is correct, but doesnt look good
+	var urlBuilder strings.Builder
+
+	urlBuilder.WriteString(url.Scheme)
+	urlBuilder.WriteString("://")
+	urlBuilder.WriteString(url.Hostname())
+	if len(url.Port()) != 0 {
+		urlBuilder.WriteString(":")
+		urlBuilder.WriteString(url.Port())
+	}
+	urlBuilder.WriteString(path.Clean(url.EscapedPath()))
+
+	return urlBuilder.String()
 }

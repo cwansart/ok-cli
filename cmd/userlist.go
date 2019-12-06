@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -25,7 +24,7 @@ func userList(_ *cobra.Command, _ []string) {
 	}
 
 	// TODO: handle missing env var
-	req.SetBasicAuth(os.Getenv(giteaUsernameKey), os.Getenv(giteaPasswordKey))
+	req.SetBasicAuth(config.Username, config.Password)
 
 	client := &http.Client{}
 
@@ -44,5 +43,5 @@ func userList(_ *cobra.Command, _ []string) {
 func userListUrl() string {
 	// TODO: give an option to get users from Jenkins or Gitea. Or perhaps get them from both?
 	// Perhaps we should extract the url key into structs to enable Gitea, GitLab and other implementations.
-	return cleanUrl(giteaUrlKey, "/api/v1/admin/users")
+	return cleanUrl(config.GiteaURL, "/api/v1/admin/users")
 }
