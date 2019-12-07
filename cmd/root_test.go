@@ -1,19 +1,21 @@
 package cmd
 
 import (
-	okconfig "github.com/cwansart/ok-cli/internal/config"
-	"github.com/magiconair/properties/assert"
 	"testing"
+
+	"github.com/magiconair/properties/assert"
+
+	okconfig "github.com/cwansart/ok-cli/internal/config"
 )
 
 func TestCleanURL(t *testing.T) {
 	var testData = []struct {
-		config okconfig.Config
+		config okconfig.GiteaConfig
 		path   string
 		want   string
 	}{
 		{
-			createTestConfig("", "", "http://localhost", ""),
+			createTestConfig("", "", "http://localhost"),
 			"/api/v1/admin/users",
 			"http://localhost/api/v1/admin/users",
 		},
@@ -21,16 +23,15 @@ func TestCleanURL(t *testing.T) {
 	}
 
 	for _, td := range testData {
-		got := cleanUrl(td.config.GiteaURL, td.path)
+		got := cleanUrl(td.config.Url, td.path)
 		assert.Equal(t, got, td.want)
 	}
 }
 
-func createTestConfig(username, password, giteaURL, jenkinsURL string) okconfig.Config {
-	return okconfig.Config{
-		Username:   username,
-		Password:   password,
-		JenkinsURL: jenkinsURL,
-		GiteaURL:   giteaURL,
+func createTestConfig(username string, password string, url string) okconfig.GiteaConfig {
+	return okconfig.GiteaConfig{
+		Username: username,
+		Password: password,
+		Url:      url,
 	}
 }

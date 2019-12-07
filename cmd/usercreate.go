@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
 
 	"github.com/spf13/cobra"
@@ -62,24 +61,24 @@ func createOnGitea(s chan bool) {
 
 	b, err := json.Marshal(u)
 	if err != nil {
-		fmt.Errorf("An error occurred during marshalling:  %s\n", err)
+		_ = fmt.Errorf("An error occurred during marshalling:  %s\n", err)
 		return
 	}
 
 	req, err := http.NewRequest("POST", giteaUserCreateUrl(), bytes.NewBuffer(b))
 	if err != nil {
-		fmt.Printf("An error occurred during request creation: %s\n", err)
+		_ = fmt.Errorf("An error occurred during request creation: %s\n", err)
 		return
 	}
 
 	// TODO: perhaps using a token would be better? See /admin​/users​/{username}​/keys route
-	req.SetBasicAuth(config.Username, config.Password)
+	req.SetBasicAuth(config.Gitea.Username, config.Gitea.Password)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Errorf("An error occurred during request: %s\n", err)
+		_ = fmt.Errorf("An error occurred during request: %s\n", err)
 		return
 	}
 
@@ -110,10 +109,11 @@ func createOnJenkins(s chan bool) {
 			password))
 
 	cli := exec.Command("java",
-		"-jar", os.Getenv(jenkinsCliPathKey),
-		"-s", os.Getenv(jenkinsUrlKey),
+		"-jar", config.Jenkins.CliPath,
+		"-s", config.Jenkins.Url,
 		"-auth", fmt.Sprintf("$%s:$%s", jenkinsUsernameKey, jenkinsPasswordKey),
-		//"-auth", fmt.Sprintf("%s:%s", os.Getenv(jenkinsUsernameKey), os.Getenv(jenkinsPasswordKey)),
+		// Not sure if the following line works.
+		//"-auth", fmt.Sprintf("%s:%s", config.Jenkins.Username, config.Jenkins.Password),
 		"help")
 
 	fmt.Printf("Run command: %s | %s", echo.String(), cli.String())
@@ -132,15 +132,15 @@ func createOnJenkins(s chan bool) {
 
 	err = echo.Start()
 	if err != nil {
-		fmt.Printf("Run echo failed. %s\n", err)
+		_ = fmt.Errorf("Run echo failed. %s\n", err)
 		s <- false
 		return
 	}
 
-	o, _ := cli.Output()
+	o, err := cli.Output()
 
 	if err != nil {
-		fmt.Printf("Grabbing output failed. %s\n", err)
+		_ = fmt.Errorf("Grabbing output failed. %s\n", err)
 		s <- false
 		return
 	}
@@ -151,5 +151,5 @@ func createOnJenkins(s chan bool) {
 }
 
 func giteaUserCreateUrl() string {
-	return cleanUrl(config.GiteaURL, "/api/v1/admin/users")
+	return cleanUrl(config.Gitea.Url, "/api/v1/admin/users")
 }
