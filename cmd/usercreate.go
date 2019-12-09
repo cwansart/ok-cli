@@ -110,38 +110,21 @@ func createOnJenkins(s chan bool) {
 	cmd := exec.Command("java",
 		"-jar", config.Jenkins.CliPath,
 		"-s", config.Jenkins.Url,
-		// "-auth", fmt.Sprintf("$%s:$%s", jenkinsUsernameKey, jenkinsPasswordKey),
-		// Not sure if the following line works.
 		"-auth", fmt.Sprintf("%s:%s", config.Jenkins.Username, config.Jenkins.Password),
 		"groovy",
 		"=")
-
-	// DEBUG OUTPUT
-	// TODO: remove before commit
-	fmt.Printf("cmd=%s\n", cmd)
 
 	cmd.Stdin = strings.NewReader(fmt.Sprintf(`jenkins.model.Jenkins.instance.securityRealm.createAccount("%s", "%s")`,
 		username,
 		password))
 
-	/*err := cmd.Start()
-	if err != nil {
-		fmt.Printf("Run echo failed. %s\n", err)
-		s <- false
-		return
-	}*/
-
-	o, err := cmd.Output()
+	err := cmd.Start()
 
 	if err != nil {
 		fmt.Printf("Grabbing output failed. %s\n", err)
 		s <- false
 		return
 	}
-
-	// Do we want to keep this output? I guess it is useful for debugging purposes but other than that it is probably
-	// just noisy.
-	fmt.Printf("Jenkins-cli output: %s\n", string(o))
 
 	s <- true
 }
