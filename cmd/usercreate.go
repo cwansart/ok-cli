@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -48,6 +49,9 @@ func userCreate(_ *cobra.Command, _ []string) {
 	g, j := <-s
 	if !g || !j {
 		// TODO: undo changes if one fails
+		fmt.Printf("User creation in Jenkins or Gitea failed.")
+	} else {
+		fmt.Printf("User creation succeeded.")
 	}
 }
 
@@ -103,49 +107,41 @@ func createOnGitea(s chan bool) {
 // To create a new Jenkins we account we need to invoke the jenkins-cli with some parameters. The command looks like:
 // echo 'jenkins.model.Jenkins.instance.securityRealm.createAccount("user", "password")' | java -jar $OK_JENKINS_CLI_PATH -s $OK_JENKINS_URL -auth $OK_JENKINS_USERNAME:$OK_JENKINS_PASSWORD groovy =
 func createOnJenkins(s chan bool) {
-	echo := exec.Command("echo",
-		fmt.Sprintf(`'jenkins.model.Jenkins.instance.securityRealm.createAccount("%s", "%s")'`,
-			username,
-			password))
-
-	cli := exec.Command("java",
+	cmd := exec.Command("java",
 		"-jar", config.Jenkins.CliPath,
 		"-s", config.Jenkins.Url,
-		"-auth", fmt.Sprintf("$%s:$%s", jenkinsUsernameKey, jenkinsPasswordKey),
+		// "-auth", fmt.Sprintf("$%s:$%s", jenkinsUsernameKey, jenkinsPasswordKey),
 		// Not sure if the following line works.
-		//"-auth", fmt.Sprintf("%s:%s", config.Jenkins.Username, config.Jenkins.Password),
-		"help")
+		"-auth", fmt.Sprintf("%s:%s", config.Jenkins.Username, config.Jenkins.Password),
+		"groovy",
+		"=")
 
-	fmt.Printf("Run command: %s | %s", echo.String(), cli.String())
+	// DEBUG OUTPUT
+	// TODO: remove before commit
+	fmt.Printf("cmd=%s\n", cmd)
 
-	pipe, err := echo.StdoutPipe()
-	defer pipe.Close() // TODO: IntelliJ warns about unhandled exception. How do we handle this?
+	cmd.Stdin = strings.NewReader(fmt.Sprintf(`jenkins.model.Jenkins.instance.securityRealm.createAccount("%s", "%s")`,
+		username,
+		password))
+
+	/*err := cmd.Start()
+	if err != nil {
+		fmt.Printf("Run echo failed. %s\n", err)
+		s <- false
+		return
+	}*/
+
+	o, err := cmd.Output()
 
 	if err != nil {
-		fmt.Printf("Run jenkins-cli failed. %s\n", err)
+		fmt.Printf("Grabbing output failed. %s\n", err)
 		s <- false
 		return
 	}
 
-	// pipe in the "cli" command into the echo
-	cli.Stdin = pipe
-
-	err = echo.Start()
-	if err != nil {
-		_ = fmt.Errorf("Run echo failed. %s\n", err)
-		s <- false
-		return
-	}
-
-	o, err := cli.Output()
-
-	if err != nil {
-		_ = fmt.Errorf("Grabbing output failed. %s\n", err)
-		s <- false
-		return
-	}
-
-	fmt.Printf("Jenkins-cli output: %s", string(o))
+	// Do we want to keep this output? I guess it is useful for debugging purposes but other than that it is probably
+	// just noisy.
+	fmt.Printf("Jenkins-cli output: %s\n", string(o))
 
 	s <- true
 }

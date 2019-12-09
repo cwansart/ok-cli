@@ -26,6 +26,10 @@ type GiteaConfig struct {
 func NewConfig() Config {
 	return Config{
 		Jenkins: JenkinsConfig{
+			// I am not sure if "OK_JENKINS_USERNAME" is sufficient. When we have normal user command which don't
+			// require administative powers we may have overlapping names. For example, I have "jenkins" the admin
+			// user on Gitea and a normal user "cwansart" on Gitea. How do I run `ok init <projectName>` as user
+			// "cwansart" without the need to change those env vars every time?
 			Username: getEnvVar("OK_JENKINS_USERNAME"),
 			Password: getEnvVar("OK_JENKINS_PASSWORD"),
 			Url:      getEnvVar("OK_JENKINS_URL"),
